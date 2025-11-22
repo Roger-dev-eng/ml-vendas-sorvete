@@ -1,1 +1,0 @@
-Tabela representativa das vendas e temperaturas referente aos três primeiros meses do ano.

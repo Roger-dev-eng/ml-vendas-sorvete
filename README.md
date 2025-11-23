@@ -1,118 +1,153 @@
-#  Previsão de Vendas de Sorvete com AutoML
+#  Previsão de Vendas de Sorvete usando Machine Learning
 
-Este projeto utiliza o Azure Machine Learning com AutoML para prever vendas de sorvete com base na temperatura. O modelo foi treinado, avaliado, registrado e utilizado dentro de um notebook interativo.
+Este projeto aplica técnicas de Machine Learning (Regressão) para prever o número de sorvetes vendidos a partir da temperatura.
+Ele demonstra todas as etapas de um pipeline de ML, desde o tratamento dos dados até o deploy de um modelo funcional.
 
 ---
 
+## Importante:
+Este projeto foi inicialmente desenvolvido no Azure Machine Learning (Azure ML) para fins de estudo, aproveitando:
+
+- Criação e versionamento de datasets
+
+- Experimento automatizado de regressão
+
+- Comparação de modelos com AutoML
+
+- Métricas integradas e registro de artefatos
+
+Após validar a ideia no Azure, o projeto foi reconstruído localmente usando Python, usando:
+
+- Scikit-Learn
+
+- Pandas
+
+- Streamlit
+---
+
 ##  Estrutura do Projeto
-```
-modelo-sorvetes-automl/  
-├── inputs/
-│ └── sorvetes.csv
+```  
+├── app/
+│ └── app.py             # Interface Streamlit
 │ 
-├── notebooks/ 
-│ └── piperline_sorvete.ipynb
+├── data/ 
+│ ├── raw/               # Dataset original
+│ └── processed/         # Dados tratados
 │ 
-├── imagens/ 
-│ └── grafico.jpeg
-│ └── tabela.png
-│ 
+├── models/ 
+│ └── melhor_modelo.pkl  # Modelo treinado
+│
+├── notebooks/
+│ └── ice_cream_ml.ipynb # Notebook demonstrativo
+│
+├── src/
+│  ├── data_prep.py
+│  ├── train.py
+│  ├── evaluate.py
+│  └── predict.py
+│
 ├── README.md
 ```
 
 ---
 
-##  Objetivo
+##  Como funciona
 
-Prever a quantidade de sorvete vendida com base na temperatura, utilizando aprendizado de máquina automatizado (AutoML) no Azure ML Studio.
+O dataset possui duas variáveis principais:
+
+- Temperatura (°C)
+
+- Sorvetes Vendidos
+
+O fluxo completo de todas as etapas da pipeline:
+
+1. Pré-processamento\
+Envolve limpar e padronizar os dados, corrigir inconsistências, normalizar a temperatura com StandardScaler e dividir o dataset em treino e teste (80/20).
+
+2. Treinamento\
+Modelos como Regressão Linear, Random Forest e XGBoost são testados, o melhor é escolhido pelo menor RMSE e salvo como melhor_modelo.pkl.
+
+3. Avaliação\
+O modelo é avaliado por MAE, RMSE e R², além de um gráfico True vs Predicted para visualizar sua precisão.
+
+4. Predição\
+É possível fazer previsões únicas, previsões em lote via CSV e usar uma interface gráfica em Streamlit.
+---
+
+## Azure ML X Scikit-Learn
+Este projeto foi inicialmente desenvolvido no Azure Machine Learning, utilizando AutoML para regressão.
+Depois, o pipeline foi reconstruído localmente usando Scikit-Learn.
+A seguir, uma comparação direta das métricas:
+### Resultados no Azure ML (AutoML)
+| Métrica                                       | Valor       |
+| --------------------------------------------- | ----------- |
+| **MAE**                                       | **0.34277** |
+| **R²**                                        | **0.99483** |
+| **RMSE**                                      | **0.72138** |
+
+- O modelo do Azure alcançou R² de 0.99483, indicando que ele explica quase 100% da variação das vendas.
+- Os erros (MAE = 0.34, RMSE = 0.72) são extremamente baixos → padrão de modelo quase perfeito.
+### Resultados Localmente no Scikit-Learn
+Os valores exatos variam conforme o dataset e o random_state, mas geralmente ficam próximos de:
+| Métrica  | Valor típico |
+| -------- | ------------ |
+| **MAE**  | 2.0 – 4.0    |
+| **R²**   | 0.85 – 0.95  |
+| **RMSE** | 2.5 – 4.5    |
+
+O modelo local é bom, mas não tão preciso quanto o Azure AutoML.
+Isso é esperado, porque:
+- O treinamento local usa menos modelos (Linear Regression, Random Forest, XGBoost).
+- Não há otimização automática de hiperparâmetros avançada.
+- O Azure ML usa AutoML + tuning interno, testando dezenas ou centenas de configurações.
 
 ---
 
 ##  Tecnologias Utilizadas
 
+### Cloud
 - Azure Machine Learning Studio
-- AutoML
-- Python 3.9
-- MLflow
-- Pandas
-- Matplotlib
+### Local
+- Python
+- Scikit-Learn
+- XGBoost (opcional)
+- Pandas / NumPy
+- Matplotlib / Seaborn
+- Streamlit
+- Joblib
 
 ---
+## Como Rodar o Projeto
 
-##  Resultados do Modelo AutoML
-
-Abaixo estão as métricas de desempenho obtidas após o treinamento do modelo de previsão de vendas de sorvete com base na temperatura:
-
-| Métrica                                         | Valor      |
-|------------------------------------------------|------------|
-| Variância explicada                            | 0.99531    |
-| Erro absoluto de média (MAE)                   | 0.34277    |
-| Erro percentual absoluto de média (MAPE)       | 0.73263    |
-| Erro mediano absoluto                          | 0.087922   |
-| Erro absoluto de média normalizado             | 0.0068553  |
-| Erro mediano absoluto normalizado              | 0.0017584  |
-| Erro quadrático médio normalizado (NRMSE)      | 0.014428   |
-| Erro log de quadrado de média raiz normalizado | 0.015773   |
-| Pontuação R²                                   | 0.99483    |
-| Erro de raiz do valor quadrático médio (RMSE)  | 0.72138    |
-| Erro log de raiz do valor quadrático médio     | 0.015150   |
-| Correlação de Spearman                         | 0.99098    |
-
-Esses resultados indicam que o modelo possui excelente capacidade preditiva, com alta explicação da variância e baixa margem de erro. A correlação de Spearman próxima de 1 reforça a consistência entre os valores previstos e reais.
-
-
----
-
-##  Gráfico de Avaliação
-
-Comparação entre vendas reais e previstas:
-
-![Gráfico de vendas](imagens/grafico.jpeg)
-![Gráfico de vendas](imagens/tabela.png)
-
----
-
-##  Notebook: `piperline_sorvetes.ipynb`
-
-O notebook contém:
-
-- Conexão com o workspace do Azure ML
-- Carregamento do modelo registrado via MLflow
-- Preparação dos dados de entrada
-- Previsão com base na temperatura
-- Visualização dos resultados
-
-###  Exemplo de Uso
-
-```python
-from azureml.core import Workspace, Model
-import mlflow.pyfunc
-import pandas as pd
-
-# Conectar ao workspace
-ws = Workspace.from_config()
-
-# Carregar modelo registrado
-modelo = Model(ws, name='model_sorvetes')
-modelo_path = modelo.download(exist_ok=True)
-modelo_mlflow = mlflow.pyfunc.load_model(modelo_path)
-
-# Entrada e previsão
-df_entrada = pd.DataFrame([[34.0]], columns=["Temperatura (°C)"])
-df_entrada["Temperatura (°C)"] = df_entrada["Temperatura (°C)"].astype("float64")
-previsao = modelo_mlflow.predict(df_entrada)
-print("Previsão de vendas:", previsao[0])
+### Preparação dos dados
+Após carregar os dados em data/ -> raw/, rode: 
+``` bash
+python src/data_prep.py
 ```
+### Treinamento do modelo
+```bash
+python src/train.py
+```
+### Avaliação
+```bash
+python src/evaluate.py
+```
+### Executar o Streamlit
+```bash
+streamlit run app/app.py
+```
+
+
 ---
 ##  Conclusão e Aprendizados
 
-Este projeto foi uma jornada prática e enriquecedora no uso de inteligência artificial para resolver um problema real: prever vendas de sorvete com base na temperatura. Ao longo do processo, foi possível aprender como:
+Este projeto foi uma jornada prática no uso de inteligência artificial onde foi possível aprender como:
 
+- Construção completa de um pipeline de machine learning
+- Comparação de modelos
+- Deploy funcional
 - Utilizar o **Azure Machine Learning Studio** para treinar modelos com AutoML de forma automatizada e eficiente.
-- Registrar e carregar modelos com **MLflow**, respeitando o esquema de entrada e as dependências do ambiente.
+- Registrar e carregar modelos com **MLflow**.
 - Preparar dados corretamente, garantindo que os tipos e nomes de colunas estejam alinhados com o modelo.
-- Interpretar métricas de avaliação como R², MAE, RMSE e correlação de Spearman para validar a performance preditiva.
+- Interpretar métricas de avaliação como R², MAE, RMSE.
 - Visualizar os resultados com gráficos e tabelas, facilitando a comunicação dos insights gerados.
-
-Mais do que apenas prever vendas, este projeto mostrou como integrar ferramentas modernas de machine learning em um fluxo de trabalho acessível e replicável. O conhecimento adquirido aqui pode ser aplicado em diversos contextos — desde análise de negócios até projetos acadêmicos e profissionais.
-

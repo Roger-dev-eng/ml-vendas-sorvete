@@ -4,6 +4,14 @@ Este projeto aplica técnicas de Machine Learning (Regressão) para prever o nú
 Ele demonstra todas as etapas de um pipeline de ML, desde o tratamento dos dados até o deploy de um modelo funcional.
 
 ---
+## Conteúdo
+- [Importante](#importante)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Como funciona](#como-funciona)
+- [Azure ML X Scikit-Learn](#azure-ml-x-scikit-learn)
+- [Tecnologias utilizadas](#tecnologias-utilizadas)
+- [Como rodar o projeto](#como-rodar-o-projeto)
+- [Conclusão e aprendizados](#conclusão-e-aprendizados)
 
 ## Importante:
 Este projeto foi inicialmente desenvolvido no Azure Machine Learning (Azure ML) para fins de estudo, aproveitando:

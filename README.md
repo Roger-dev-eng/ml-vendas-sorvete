@@ -1,49 +1,38 @@
-#  Previsão de Vendas de Sorvete usando Machine Learning
+# Previsão de Vendas de Sorvete usando Machine Learning
 
-Este projeto aplica técnicas de Machine Learning (Regressão) para prever o número de sorvetes vendidos a partir da temperatura.
-Ele demonstra todas as etapas de um pipeline de ML, desde o tratamento dos dados até o deploy de um modelo funcional.
+Este projeto aplica técnicas de Machine Learning (regressão) para prever o número de sorvetes vendidos a partir da temperatura.
+Ele demonstra as etapas básicas de um pipeline de ML, do preparo dos dados até a predição via Streamlit.
 
 ---
 ## Conteúdo
 - [Importante](#importante)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Como funciona](#como-funciona)
-- [Azure ML X Scikit-Learn](#azure-ml-x-scikit-learn)
+- [Azure ML x Scikit-Learn](#azure-ml-x-scikit-learn)
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
 - [Como rodar o projeto](#como-rodar-o-projeto)
 - [Conclusão e aprendizados](#conclusão-e-aprendizados)
 
-## Importante:
-Este projeto foi inicialmente desenvolvido no Azure Machine Learning (Azure ML) para fins de estudo, aproveitando:
+## Importante
+Este projeto foi inicialmente desenvolvido no Azure Machine Learning (Azure ML) para fins de estudo. 
+Depois, o pipeline foi reconstruído localmente usando Python e Scikit-Learn.
 
-- Criação e versionamento de datasets
-
-- Experimento automatizado de regressão
-
-- Comparação de modelos com AutoML
-
-- Métricas integradas e registro de artefatos
-
-Após validar a ideia no Azure, o projeto foi reconstruído localmente usando Python, usando:
-
-- Scikit-Learn
-
-- Pandas
-
-- Streamlit
 ---
 
-##  Estrutura do Projeto
-```  
+## Estrutura do Projeto
+```
 ├── app/
 │ └── app.py             # Interface Streamlit
-│ 
-├── data/ 
+│
+├── data/
 │ ├── raw/               # Dataset original
-│ └── processed/         # Dados tratados
-│ 
-├── models/ 
-│ └── melhor_modelo.pkl  # Modelo treinado
+│ └── processed/         # Dados tratados (gerados)
+│
+├── models/
+│ └── melhor_modelo.pkl  # Modelo treinado (gerado)
+│
+├── outputs/
+│ └── metrics.json       # Métricas (gerado)
 │
 ├── notebooks/
 │ └── ice_cream_ml.ipynb # Notebook demonstrativo
@@ -59,33 +48,33 @@ Após validar a ideia no Azure, o projeto foi reconstruído localmente usando Py
 
 ---
 
-##  Como funciona
-
+## Como funciona
 O dataset possui duas variáveis principais:
-
 - Temperatura (°C)
-
 - Sorvetes Vendidos
 
-O fluxo completo de todas as etapas da pipeline:
+Fluxo completo da pipeline:
 
-1. Pré-processamento\
-Envolve limpar e padronizar os dados, corrigir inconsistências, normalizar a temperatura com StandardScaler e dividir o dataset em treino e teste (80/20).
+1. Pré-processamento
+Limpa dados, padroniza colunas e separa train/test (80/20). Não há escalonamento nesta etapa.
 
-2. Treinamento\
-Modelos como Regressão Linear, Random Forest e XGBoost são testados, o melhor é escolhido pelo menor RMSE e salvo como melhor_modelo.pkl.
+2. Treinamento
+Testa Regressão Linear, Random Forest e (opcionalmente) XGBoost. O melhor modelo é escolhido pelo menor RMSE.
+A Regressão Linear usa `StandardScaler` via `Pipeline` do sklearn, as árvores não.
 
-3. Avaliação\
-O modelo é avaliado por MAE, RMSE e R², além de um gráfico True vs Predicted para visualizar sua precisão.
+3. Avaliação
+O modelo é avaliado por MAE, RMSE e R², com gráfico True vs Predicted.
+A análise SHAP é opcional e desativada por padrão para evitar custo alto.
 
-4. Predição\
-É possível fazer previsões únicas, previsões em lote via CSV e usar uma interface gráfica em Streamlit.
+4. Predição
+Suporta predição única, lote via CSV e interface Streamlit.
+
 ---
 
-## Azure ML X Scikit-Learn
+## Azure ML x Scikit-Learn
 Este projeto foi inicialmente desenvolvido no Azure Machine Learning, utilizando AutoML para regressão.
 Depois, o pipeline foi reconstruído localmente usando Scikit-Learn.
-A seguir, uma comparação direta das métricas:
+
 ### Resultados no Azure ML (AutoML)
 | Métrica                                       | Valor       |
 | --------------------------------------------- | ----------- |
@@ -93,69 +82,58 @@ A seguir, uma comparação direta das métricas:
 | **R²**                                        | **0.99483** |
 | **RMSE**                                      | **0.72138** |
 
-- O modelo do Azure alcançou R² de 0.99483, indicando que ele explica quase 100% da variação das vendas.
-- Os erros (MAE = 0.34, RMSE = 0.72) são extremamente baixos → padrão de modelo quase perfeito.
 ### Resultados Localmente no Scikit-Learn
-Os valores exatos variam conforme o dataset e o random_state, mas geralmente ficam próximos de:
-| Métrica  | Valor típico |
-| -------- | ------------ |
-| **MAE**  | 2.0 – 4.0    |
-| **R²**   | 0.85 – 0.95  |
-| **RMSE** | 2.5 – 4.5    |
-
-O modelo local é bom, mas não tão preciso quanto o Azure AutoML.
-Isso é esperado, porque:
-- O treinamento local usa menos modelos (Linear Regression, Random Forest, XGBoost).
-- Não há otimização automática de hiperparâmetros avançada.
-- O Azure ML usa AutoML + tuning interno, testando dezenas ou centenas de configurações.
+Os valores variam conforme o dataset e o `random_state`. Exemplo de execução local:
+| Métrica  | Valor |
+| -------- | ----- |
+| **MAE**  | 0.5557 |
+| **R²**   | 0.9892 |
+| **RMSE** | 1.6667 |
 
 ---
 
-##  Tecnologias Utilizadas
-
+## Tecnologias Utilizadas
 ### Cloud
 - Azure Machine Learning Studio
+
 ### Local
 - Python
 - Scikit-Learn
-- XGBoost (opcional)
 - Pandas / NumPy
 - Matplotlib / Seaborn
 - Streamlit
 - Joblib
 
 ---
-## Como Rodar o Projeto
 
+## Como Rodar o Projeto
 ### Preparação dos dados
-Após carregar os dados em data/ -> raw/, rode: 
-``` bash
+Após carregar os dados em `data/raw`, rode:
+```bash
 python src/data_prep.py
 ```
+
 ### Treinamento do modelo
 ```bash
 python src/train.py
 ```
+
 ### Avaliação
 ```bash
 python src/evaluate.py
 ```
+
 ### Executar o Streamlit
 ```bash
 streamlit run app/app.py
 ```
 
-
 ---
-##  Conclusão e Aprendizados
 
-Este projeto foi uma jornada prática no uso de inteligência artificial onde foi possível aprender como:
-
-- Construção completa de um pipeline de machine learning
+## Conclusão e Aprendizados
+Este projeto permite aprender na prática:
+- Construção de um pipeline simples de ML
 - Comparação de modelos
-- Deploy funcional
-- Utilizar o **Azure Machine Learning Studio** para treinar modelos com AutoML de forma automatizada e eficiente.
-- Registrar e carregar modelos com **MLflow**.
-- Preparar dados corretamente, garantindo que os tipos e nomes de colunas estejam alinhados com o modelo.
-- Interpretar métricas de avaliação como R², MAE, RMSE.
-- Visualizar os resultados com gráficos e tabelas, facilitando a comunicação dos insights gerados.
+- Deploy funcional com Streamlit
+- Leitura de métricas (R², MAE, RMSE)
+- Visualização de resultados com gráficos

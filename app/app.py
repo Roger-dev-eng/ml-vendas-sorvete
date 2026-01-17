@@ -4,6 +4,7 @@ import sys
 import os
 from pathlib import Path
 import base64
+import tempfile
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.predict import predict_single, predict_batch
@@ -26,11 +27,16 @@ csv_file = st.file_uploader("CSV com coluna temperatura", type=["csv"])
 if csv_file:
     df = pd.read_csv(csv_file)
     st.write(df.head())
-    tmp = ROOT / "upload_temp.csv"
-    df.to_csv(tmp, index=False)
-    out = predict_batch(tmp)
-    out_csv = out.to_csv(index=False).encode()
-    b64 = base64.b64encode(out_csv).decode()
-    link = f'<a href="data:file/csv;base64,{b64}" download="predicoes.csv">Baixar</a>'
-    st.markdown(link, unsafe_allow_html=True)
-    tmp.unlink(missing_ok=True)
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp:
+            df.to_csv(tmp.name, index=False)
+            tmp_path = Path(tmp.name)
+        out = predict_batch(tmp_path)
+        out_csv = out.to_csv(index=False).encode()
+        b64 = base64.b64encode(out_csv).decode()
+        link = f'<a href="data:file/csv;base64,{b64}" download="predicoes.csv">Baixar</a>'
+        st.markdown(link, unsafe_allow_html=True)
+    finally:
+        if tmp_path:
+            tmp_path.unlink(missing_ok=True)

@@ -3,7 +3,5 @@ numpy
 scikit-learn
 matplotlib
 seaborn
-xgboost
-shap
 streamlit
 joblib
